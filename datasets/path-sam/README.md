@@ -26,59 +26,64 @@ datasets/path-sam/
 
 ## 📊 数据集分类
 
+### 🔬 细胞类型说明
+
+**细胞类型**: 指具有细胞核和细胞质的完整细胞实体，如淋巴细胞、肿瘤细胞、中性粒细胞等
+**非细胞类型**: 组织区域、血管、背景、分泌物等非细胞结构
+
 ### 🧬 Cell Segmentation（细胞分割）数据集
 
 | 数据集 | 脚本文件 | 原始数据位置 | 处理后数据位置 | 标注类型 | 细胞类型 |
 |--------|----------|-------------|---------------|----------|----------|
-| **blood_nuclick** | `preprocess_seg/blood_nuclick.py` | `{VLDATA_RAW}/nuclick` | `{VLDATA_PROCESS}/blood_nuclick.json` | Cell Mask | 白细胞 |
-| **breast_bcss** | `preprocess_seg/breast_bcss.py` | `{VLDATA_RAW}/BCSS/BCSS` | `{VLDATA_PROCESS}/breast_bcss.json` | Cell Mask | 肿瘤、基质、淋巴细胞浸润等 |
-| **breast_tiger** | `preprocess_seg/breast_tiger.py` | `{VLDATA_RAW}/tiger` | `{VLDATA_PROCESS}/breast_tiger.json` | Cell Mask | 淋巴细胞和浆细胞 |
-| **gastric_digestpath19** | `preprocess_seg/gastric_digestpath19.py` | `{VLDATA_RAW}/digestpath19` | `{VLDATA_PROCESS}/gastric_digestpath19.json` | Cell Mask | 印戒细胞 |
-| **ihc_nuclick** | `preprocess_seg/ihc_nuclick.py` | `{VLDATA_RAW}/ihc_nuclick` | `{VLDATA_PROCESS}/ihc_nuclick.json` | Cell Mask | 淋巴细胞（IHC染色） |
-| **mix_cellseg** | `preprocess_unknowntype_seg/mix_cellseg_bm.py` | `{VLDATA_RAW}/cellseg` | `{VLDATA_PROCESS}/mix_cellseg.json` | Cell Mask | 未知类型细胞 |
-| **mix_hover** | `preprocess_unknowntype_seg/mix_hover_bm.py` | `{VLDATA_RAW}/hover` | `{VLDATA_PROCESS}/mix_hover.json` | Cell Mask | 未知类型细胞 |
+| **blood_nuclick** | `preprocess_seg/blood_nuclick.py` | `{VLDATA_RAW}/nuclick` | `{VLDATA_PROCESS}/blood_nuclick.json` | Cell Mask | **白细胞** |
+| **breast_bcss** | `preprocess_seg/breast_bcss.py` | `{VLDATA_RAW}/BCSS/BCSS` | `{VLDATA_PROCESS}/breast_bcss.json` | Cell Mask | **浆细胞** |
+| **breast_tiger** | `preprocess_seg/breast_tiger.py` | `{VLDATA_RAW}/tiger` | `{VLDATA_PROCESS}/breast_tiger.json` | Cell Mask | **淋巴细胞、浆细胞** |
+| **gastric_digestpath19** | `preprocess_seg/gastric_digestpath19.py` | `{VLDATA_RAW}/digestpath19` | `{VLDATA_PROCESS}/gastric_digestpath19.json` | Cell Mask | **印戒细胞** |
+| **ihc_nuclick** | `preprocess_seg/ihc_nuclick.py` | `{VLDATA_RAW}/ihc_nuclick` | `{VLDATA_PROCESS}/ihc_nuclick.json` | Cell Mask | **淋巴细胞** |
+| **mix_cellseg** | `preprocess_unknowntype_seg/mix_cellseg_bm.py` | `{VLDATA_RAW}/cellseg` | `{VLDATA_PROCESS}/mix_cellseg.json` | Cell Mask | **通用细胞** |
+| **mix_hover** | `preprocess_unknowntype_seg/mix_hover_bm.py` | `{VLDATA_RAW}/hover` | `{VLDATA_PROCESS}/mix_hover.json` | Cell Mask | **通用细胞** |
 
 ### 🧪 Nucleus Mask（细胞核掩码）数据集
 
 | 数据集 | 脚本文件 | 原始数据位置 | 处理后数据位置 | 标注类型 | 细胞核类型 |
 |--------|----------|-------------|---------------|----------|------------|
-| **bone_segpc** | `preprocess_seg/bone_segpc.py` | `{VLDATA_RAW}/segpc` | `{VLDATA_PROCESS}/bone_segpc.json` | Cell + Nucleus Mask | 骨髓瘤浆细胞 |
-| **breast_panoptils** | `preprocess_seg/breast_panoptils.py` | `{VLDATA_RAW}/panoptils` | `{VLDATA_PROCESS}/breast_panoptils.json` | Nucleus Mask | 癌症、基质、淋巴细胞等 |
-| **colon_conic** | `preprocess_seg/colon_conic.py` | `{VLDATA_RAW}/CoNIC/data` | `{VLDATA_PROCESS}/colon_conic.json` | Nucleus Mask | 中性粒细胞、上皮细胞、淋巴细胞等 |
-| **colon_consep** | `preprocess_seg/colon_consep.py` | `{VLDATA_RAW}/consep` | `{VLDATA_PROCESS}/colon_consep.json` | Nucleus Mask | 炎症、健康上皮、恶性上皮等 |
-| **gastric_glysac** | `preprocess_seg/gastric_glysac.py` | `{VLDATA_RAW}/glysac` | `{VLDATA_PROCESS}/gastric_glysac.json` | Nucleus Mask | 胃癌细胞核 |
-| **ihc_endonuke** | `preprocess_seg/ihc_endonuke_c.py` | `{VLDATA_RAW}/endonuke` | `{VLDATA_PROCESS}/ihc_endonuke.json` | Nucleus Mask | 基质、上皮、其他细胞核 |
-| **mix_monusac20** | `preprocess_seg/mix_monusac20.py` | `{VLDATA_RAW}/monusac20` | `{VLDATA_PROCESS}/mix_monusac20.json` | Nucleus Mask | 上皮、巨噬细胞、中性粒细胞等 |
-| **mix_panuke** | `preprocess_seg/mix_panuke.py` | `{VLDATA_RAW}/panuke` | `{VLDATA_PROCESS}/mix_panuke.json` | Nucleus Mask | 肿瘤性、炎症性、结缔组织等 |
-| **skin_puma** | `preprocess_seg/skin_puma.py` | `{VLDATA_RAW}/puma` | `{VLDATA_PROCESS}/skin_puma.json` | Nucleus Mask | 肿瘤、凋亡、淋巴细胞等 |
-| **cervic_cnseg** | `preprocess_unknowntype_seg/cervic_cnseg_bm.py` | `{VLDATA_RAW}/cnseg` | `{VLDATA_PROCESS}/cervic_cnseg.json` | Nucleus Mask | 宫颈癌细胞核 |
-| **mix_CryoNuSeg** | `preprocess_unknowntype_seg/mix_CryoNuSeg_bm.py` | `{VLDATA_RAW}/cryonuseg` | `{VLDATA_PROCESS}/mix_CryoNuSeg.json` | Nucleus Mask | 混合细胞核 |
+| **bone_segpc** | `preprocess_seg/bone_segpc.py` | `{VLDATA_RAW}/segpc` | `{VLDATA_PROCESS}/bone_segpc.json` | Cell + Nucleus Mask | **骨髓瘤浆细胞** |
+| **breast_panoptils** | `preprocess_seg/breast_panoptils.py` | `{VLDATA_RAW}/panoptils` | `{VLDATA_PROCESS}/breast_panoptils.json` | Nucleus Mask | **癌细胞核、淋巴细胞核、浆细胞核、正常上皮细胞核** |
+| **colon_conic** | `preprocess_seg/colon_conic.py` | `{VLDATA_RAW}/CoNIC/data` | `{VLDATA_PROCESS}/colon_conic.json` | Nucleus Mask | **中性粒细胞、上皮细胞、淋巴细胞、浆细胞、嗜酸性粒细胞** |
+| **colon_consep** | `preprocess_seg/colon_consep.py` | `{VLDATA_RAW}/consep` | `{VLDATA_PROCESS}/colon_consep.json` | Nucleus Mask | **健康上皮细胞、发育不良/恶性上皮细胞** |
+| **gastric_glysac** | `preprocess_seg/gastric_glysac.py` | `{VLDATA_RAW}/glysac` | `{VLDATA_PROCESS}/gastric_glysac.json` | Nucleus Mask | **胃癌细胞核** |
+| **ihc_endonuke** | `preprocess_seg/ihc_endonuke_c.py` | `{VLDATA_RAW}/endonuke` | `{VLDATA_PROCESS}/ihc_endonuke.json` | Nucleus Mask | **上皮细胞核** |
+| **mix_monusac20** | `preprocess_seg/mix_monusac20.py` | `{VLDATA_RAW}/monusac20` | `{VLDATA_PROCESS}/mix_monusac20.json` | Nucleus Mask | **上皮细胞、巨噬细胞、中性粒细胞、淋巴细胞** |
+| **mix_panuke** | `preprocess_seg/mix_panuke.py` | `{VLDATA_RAW}/panuke` | `{VLDATA_PROCESS}/mix_panuke.json` | Nucleus Mask | **肿瘤细胞、炎症细胞、结缔组织细胞、死细胞、上皮细胞** |
+| **skin_puma** | `preprocess_seg/skin_puma.py` | `{VLDATA_RAW}/puma` | `{VLDATA_PROCESS}/skin_puma.json` | Nucleus Mask | **肿瘤细胞、淋巴细胞、浆细胞、内皮细胞、中性粒细胞、上皮细胞** |
+| **cervic_cnseg** | `preprocess_unknowntype_seg/cervic_cnseg_bm.py` | `{VLDATA_RAW}/cnseg` | `{VLDATA_PROCESS}/cervic_cnseg.json` | Nucleus Mask | **宫颈癌细胞核** |
+| **mix_CryoNuSeg** | `preprocess_unknowntype_seg/mix_CryoNuSeg_bm.py` | `{VLDATA_RAW}/cryonuseg` | `{VLDATA_PROCESS}/mix_CryoNuSeg.json` | Nucleus Mask | **混合细胞核** |
 
 ### 📦 Bounding Box（边界框）数据集
 
 | 数据集 | 脚本文件 | 原始数据位置 | 处理后数据位置 | 标注类型 | 目标类型 |
 |--------|----------|-------------|---------------|----------|----------|
-| **breast_nucls** | `preprocess_seg/breast_nucls_b.py` | `{VLDATA_RAW}/nucls` | `{VLDATA_PROCESS}/breast_nucls.json` | Nucleus BBox | 12种细胞核类型 |
-| **breast_midog21** | `preprocess_seg/breast_midog21_b.py` | `{VLDATA_RAW}/MIDOG21` | `{VLDATA_PROCESS}/breast_midog21.json` | Cell BBox | 有丝分裂 |
-| **ihc_tlymphoctype** | `preprocess_seg/ihc_tlymphoctype_b.py` | `{VLDATA_RAW}/tlymphoctype` | `{VLDATA_PROCESS}/ihc_tlymphoctype.json` | Cell BBox | T淋巴细胞（含蛋白质标记） |
-| **mix_midog22_b** | `preprocess_seg/mix_midog22_b.py` | `{VLDATA_RAW}/midog2` | `{VLDATA_PROCESS}/mix_midog22.json` | Cell BBox | 有丝分裂 |
+| **breast_nucls** | `preprocess_seg/breast_nucls_b.py` | `{VLDATA_RAW}/nucls` | `{VLDATA_PROCESS}/breast_nucls.json` | Nucleus BBox | **肿瘤细胞、成纤维细胞、淋巴细胞、浆细胞、巨噬细胞、有丝分裂细胞、血管内皮细胞、肌上皮细胞、凋亡细胞、中性粒细胞、导管上皮细胞、嗜酸性粒细胞** |
+| **breast_midog21** | `preprocess_seg/breast_midog21_b.py` | `{VLDATA_RAW}/MIDOG21` | `{VLDATA_PROCESS}/breast_midog21.json` | Cell BBox | **有丝分裂细胞** |
+| **ihc_tlymphoctype** | `preprocess_seg/ihc_tlymphoctype_b.py` | `{VLDATA_RAW}/tlymphoctype` | `{VLDATA_PROCESS}/ihc_tlymphoctype.json` | Cell BBox | **CD3+免疫细胞、肿瘤细胞** |
+| **mix_midog22_b** | `preprocess_seg/mix_midog22_b.py` | `{VLDATA_RAW}/midog2` | `{VLDATA_PROCESS}/mix_midog22.json` | Cell BBox | **有丝分裂细胞** |
 
 ### 📍 Centroid（质心点）数据集
 
 | 数据集 | 脚本文件 | 原始数据位置 | 处理后数据位置 | 标注类型 | 目标类型 |
 |--------|----------|-------------|---------------|----------|----------|
-| **breast_cahad** | `preprocess_seg/breast_cahad_c.py` | `{VLDATA_RAW}/BreCaHAD` | `{VLDATA_RAW}/BreCaHAD_processed` | Cell/Nuclei Centroid | 有丝分裂、凋亡、肿瘤等 |
-| **breast_tupac** | `preprocess_seg/breast_tupac_c.py` | `{VLDATA_RAW}/TUPAC-mitoses` | `{VLDATA_RAW}/TUPAC-mitoses/process_patch` | Cell Centroid | 有丝分裂 |
-| **kidney_ocelot** | `preprocess_seg/kidney_ocelot_c.py` | `{VLDATA_RAW}/ocelot_processed` | `{VLDATA_RAW}/ocelot_processed/test_patches` | Cell Centroid | 肿瘤细胞 |
-| **skin_adipocyte** | `preprocess_seg/skin_adipocyte.py` | `{VLDATA_RAW}/adipocyte` | `{VLDATA_PROCESS}/skin_adipocyte.json` | Centroid | 脂肪细胞 |
+| **breast_cahad** | `preprocess_seg/breast_cahad_c.py` | `{VLDATA_RAW}/BreCaHAD` | `{VLDATA_RAW}/BreCaHAD_processed` | Cell/Nuclei Centroid | **有丝分裂细胞、凋亡细胞、肿瘤细胞核、非肿瘤细胞核** |
+| **breast_tupac** | `preprocess_seg/breast_tupac_c.py` | `{VLDATA_RAW}/TUPAC-mitoses` | `{VLDATA_RAW}/TUPAC-mitoses/process_patch` | Cell Centroid | **有丝分裂细胞** |
+| **kidney_ocelot** | `preprocess_seg/kidney_ocelot_c.py` | `{VLDATA_RAW}/ocelot_processed` | `{VLDATA_RAW}/ocelot_processed/test_patches` | Cell Centroid | **肿瘤细胞** |
+| **skin_adipocyte** | `preprocess_seg/skin_adipocyte.py` | `{VLDATA_RAW}/adipocyte` | `{VLDATA_PROCESS}/skin_adipocyte.json` | Centroid | **脂肪细胞** |
 
 ### 🔬 混合标注类型数据集
 
 | 数据集 | 脚本文件 | 原始数据位置 | 处理后数据位置 | 标注类型 | 目标类型 |
 |--------|----------|-------------|---------------|----------|----------|
-| **headneck_cytonuke** | `preprocess_unknowntype_seg/headneck_cytonuke_bm.py` | `{VLDATA_RAW}/cytonuke` | `{VLDATA_PROCESS}/headneck_cytonuke.json` | Cell + Nucleus | 头颈癌细胞 |
-| **colon_lizard** | `preprocess_seg/colon_lizard_b_c.py` | `{VLDATA_RAW}/Lizard` | `{VLDATA_PROCESS}/colon_lizard.json` | Nucleus BBox + Centroid | 6种细胞核类型 |
-| **colon_huncrc** | `preprocess_seg/colon_huncrc.py` | `{VLDATA_RAW}/HunCRC` | `{VLDATA_PROCESS}/colon_huncrc.json` | WSI Region | 肿瘤坏死等 |
+| **headneck_cytonuke** | `preprocess_unknowntype_seg/headneck_cytonuke_bm.py` | `{VLDATA_RAW}/cytonuke` | `{VLDATA_PROCESS}/headneck_cytonuke.json` | Cell + Nucleus | **头颈癌细胞、细胞核** |
+| **colon_lizard** | `preprocess_seg/colon_lizard_b_c.py` | `{VLDATA_RAW}/Lizard` | `{VLDATA_PROCESS}/colon_lizard.json` | Nucleus BBox + Centroid | **中性粒细胞、上皮细胞、淋巴细胞、浆细胞、嗜酸性粒细胞** |
+| **colon_huncrc** | `preprocess_seg/colon_huncrc.py` | `{VLDATA_RAW}/HunCRC` | `{VLDATA_PROCESS}/colon_huncrc.json` | WSI Region | **组织区域（无直接细胞标注）** |
 
 ### 🎨 HE-IHC配对数据集
 
@@ -91,7 +96,7 @@ datasets/path-sam/
 
 | 数据集 | 脚本文件 | 原始数据位置 | 处理后数据位置 | 标注类型 | 蛋白质标记 |
 |--------|----------|-------------|---------------|----------|------------|
-| **mix_segpath** | `preprocess_seg/mix_segpath.py` | `{VLDATA_RAW}/segpath` | `{VLDATA_PROCESS}/mix_segpath.json` | Protein Expression | aSMA, CD235a, CD3CD20, CD45RB, ERG, MIST1, MNDA, panCK |
+| **mix_segpath** | `preprocess_seg/mix_segpath.py` | `{VLDATA_RAW}/segpath` | `{VLDATA_PROCESS}/mix_segpath.json` | Protein Expression | **淋巴细胞、白细胞、内皮细胞、浆细胞、髓样细胞、上皮细胞** |
 
 ## 📋 数据格式说明
 
@@ -154,6 +159,29 @@ for script in *.py; do
     python "$script"
 done
 ```
+
+## 🧬 细胞类型总结
+
+### 纯细胞类型数据集
+以下数据集只包含细胞类型的标注，不包含组织区域、血管等非细胞结构：
+- **Cell Segmentation**: blood_nuclick, breast_tiger, gastric_digestpath19, ihc_nuclick, mix_cellseg, mix_hover
+- **Nucleus Mask**: bone_segpc, gastric_glysac, cervic_cnseg, mix_CryoNuSeg  
+- **Bounding Box**: breast_midog21, breast_tupac, kidney_ocelot, skin_adipocyte, mix_midog22_b
+- **Mixed Types**: headneck_cytonuke
+
+### 混合类型数据集
+以下数据集包含细胞类型和非细胞类型（如组织区域、血管等）的混合标注：
+- **Cell Segmentation**: breast_bcss
+- **Nucleus Mask**: breast_panoptils, colon_conic, colon_consep, ihc_endonuke, mix_monusac20, mix_panuke, skin_puma
+- **Bounding Box**: breast_nucls, ihc_tlymphoctype
+- **Centroid**: breast_cahad
+- **Mixed Types**: colon_lizard, mix_segpath
+
+### 常见细胞类型
+- **免疫细胞**: 淋巴细胞、浆细胞、中性粒细胞、嗜酸性粒细胞、巨噬细胞、髓样细胞
+- **上皮细胞**: 正常上皮细胞、癌细胞、导管上皮细胞、发育不良/恶性上皮细胞
+- **肿瘤细胞**: 肿瘤细胞、印戒细胞、宫颈癌细胞、头颈癌细胞
+- **特殊细胞**: 有丝分裂细胞、凋亡细胞、血管内皮细胞、肌上皮细胞、成纤维细胞、脂肪细胞
 
 ## 📝 注意事项
 
