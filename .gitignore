@@ -8,7 +8,10 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+# build/ is ignored globally, but we need to include pipeline sources under datasets/path-sam/build
 build/
+!datasets/path-sam/build/
+!datasets/path-sam/build/*.py
 develop-eggs/
 dist/
 downloads/
