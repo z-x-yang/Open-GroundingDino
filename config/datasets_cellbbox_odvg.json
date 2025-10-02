@@ -1,0 +1,10 @@
+{
+  "train": [
+    {"root": "PLACEHOLDER", "anno": "PLACEHOLDER", "dataset_mode": "odvg"}
+  ],
+  "val": [
+    {"root": "PLACEHOLDER", "anno": "PLACEHOLDER", "label_map": null, "dataset_mode": "coco"}
+  ]
+}
+
+
