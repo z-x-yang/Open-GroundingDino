@@ -4,16 +4,16 @@ breast_nucls,fibroblast,nucleus,Fibroblast,True,manual map
 breast_nucls,lymphocyte,nucleus,Lymphocyte,True,
 breast_nucls,plasma cell,nucleus,Plasma cell,True,
 breast_nucls,macrophage,nucleus,Macrophage,True,
-breast_nucls,mitotic figure,nucleus,Mitosis (mitotic cell),True,manual map
+breast_nucls,mitotic figure,nucleus,mitoses,True,manual map
 breast_nucls,vascular endothelium,nucleus,Endothelial cell,True,manual map
 breast_nucls,myoepithelium,nucleus,Myoepithelial cell,True,manual map
 breast_nucls,apoptotic body,nucleus,Apoptotic cell,True,manual map
 breast_nucls,neutrophil,nucleus,Neutrophil,True,
 breast_nucls,ductal epithelium,nucleus,Epithelial cell,True,manual map
 breast_nucls,eosinophil,nucleus,Eosinophil,True,
-breast_midog21,mitoses,cell,Mitosis (mitotic cell),True,fallback canonical
+breast_midog21,mitoses,cell,Mitosis (mitotic cell),True,map mitoses to Mitosis (mitotic cell)
 ihc_tlymphoctype,CD3+ immune cell,cell,Lymphocyte,True,heuristic map
 ihc_tlymphoctype,Tumor cell,cell,Epithelial cell,True,heuristic map (neoplastic)
 ihc_tlymphoctype,Diverse,cell,,False,drop ambiguous
 ihc_tlymphoctype,Other cell,cell,,False,drop ambiguous
-mix_midog22_b,mitoses,cell,Mitosis (mitotic cell),True,fallback canonical
+mix_midog22_b,mitoses,cell,Mitosis (mitotic cell),True,map mitoses to Mitosis (mitotic cell)

@@ -218,7 +218,7 @@ def main():
             manual = {
                 'tumor': 'Epithelial cell',
                 'fibroblast': 'Fibroblast',
-                'mitotic figure': 'mitoses',
+                'mitotic figure': 'Mitosis (mitotic cell)',
                 'vascular endothelium': 'Endothelial cell',
                 'myoepithelium': 'Myoepithelial cell',
                 'apoptotic body': 'Apoptotic cell',

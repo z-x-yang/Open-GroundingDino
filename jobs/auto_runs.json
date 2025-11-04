@@ -1,0 +1,41 @@
+[
+  {
+    "spec": {
+      "suffix": "1gpu_bsz2",
+      "gres": "gpu:1",
+      "cpus": 4,
+      "mem": "64G",
+      "batch_size": 2,
+      "epochs": 12
+    },
+    "script": "jobs/cell_ft_1gpu_bsz2.slurm",
+    "log": "logs/auto_runs/1gpu_bsz2_%j.log",
+    "job_id": "368264"
+  },
+  {
+    "spec": {
+      "suffix": "2gpu_bsz4",
+      "gres": "gpu:2",
+      "cpus": 8,
+      "mem": "120G",
+      "batch_size": 4,
+      "epochs": 12
+    },
+    "script": "jobs/cell_ft_2gpu_bsz4.slurm",
+    "log": "logs/auto_runs/2gpu_bsz4_%j.log",
+    "job_id": "368265"
+  },
+  {
+    "spec": {
+      "suffix": "2gpu_bsz6",
+      "gres": "gpu:2",
+      "cpus": 12,
+      "mem": "160G",
+      "batch_size": 6,
+      "epochs": 14
+    },
+    "script": "jobs/cell_ft_2gpu_bsz6.slurm",
+    "log": "logs/auto_runs/2gpu_bsz6_%j.log",
+    "job_id": "368266"
+  }
+]
