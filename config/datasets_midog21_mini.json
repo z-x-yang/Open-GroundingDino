@@ -1,0 +1,8 @@
+{
+  "train": [
+    {"root": "/", "anno": "/n/lw_groups/hms/dbmi/yu/lab/zoy043/Works/Open-GroundingDino/outputs/midog21_train_sample.jsonl", "dataset_mode": "odvg"}
+  ],
+  "val": [
+    {"root": "/", "anno": "/n/lw_groups/hms/dbmi/yu/lab/zoy043/Works/Open-GroundingDino/outputs/midog21_val_coco.json", "label_map": null, "dataset_mode": "coco"}
+  ]
+}

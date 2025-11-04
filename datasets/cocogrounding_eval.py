@@ -41,6 +41,11 @@ class CocoGroundingEvaluator(object):
         self.img_ids = []
         self.eval_imgs = {k: [] for k in iou_types}
         self.useCats = useCats
+        # Preserve COCO category id order for mapping from model indices to real category_id
+        try:
+            self.cat_ids_order = self.coco_gt.getCatIds()
+        except Exception:
+            self.cat_ids_order = []
 
     def update(self, predictions):
         img_ids = list(np.unique(list(predictions.keys())))
@@ -52,7 +57,14 @@ class CocoGroundingEvaluator(object):
             # suppress pycocotools prints
             with open(os.devnull, "w") as devnull:
                 with contextlib.redirect_stdout(devnull):
-                    coco_dt = COCO.loadRes(self.coco_gt, results) if results else COCO()
+                    # ensure GT has minimal required fields
+                    if 'info' not in self.coco_gt.dataset:
+                        self.coco_gt.dataset['info'] = {
+                            "description": "auto", "version": "1.0"}
+                    if 'licenses' not in self.coco_gt.dataset:
+                        self.coco_gt.dataset['licenses'] = []
+                    coco_dt = COCO.loadRes(
+                        self.coco_gt, results) if results else COCO()
 
             coco_eval = self.coco_eval[iou_type]
 
@@ -65,8 +77,10 @@ class CocoGroundingEvaluator(object):
 
     def synchronize_between_processes(self):
         for iou_type in self.iou_types:
-            self.eval_imgs[iou_type] = np.concatenate(self.eval_imgs[iou_type], 2)
-            create_common_coco_eval(self.coco_eval[iou_type], self.img_ids, self.eval_imgs[iou_type])
+            self.eval_imgs[iou_type] = np.concatenate(
+                self.eval_imgs[iou_type], 2)
+            create_common_coco_eval(
+                self.coco_eval[iou_type], self.img_ids, self.eval_imgs[iou_type])
 
     def accumulate(self):
         for coco_eval in self.coco_eval.values():
@@ -98,17 +112,17 @@ class CocoGroundingEvaluator(object):
             scores = prediction["scores"].tolist()
             labels = prediction["labels"].tolist()
 
-            coco_results.extend(
-                [
-                    {
-                        "image_id": original_id,
-                        "category_id": labels[k],
-                        "bbox": box,
-                        "score": scores[k],
-                    }
-                    for k, box in enumerate(boxes)
-                ]
-            )
+            for k, box in enumerate(boxes):
+                if self.useCats and len(self.cat_ids_order) > 0:
+                    cat_id = int(self.cat_ids_order[labels[k]])
+                else:
+                    cat_id = int(labels[k])
+                coco_results.append({
+                    "image_id": original_id,
+                    "category_id": cat_id,
+                    "bbox": box,
+                    "score": scores[k],
+                })
         return coco_results
 
     def prepare_for_coco_segmentation(self, predictions):
@@ -127,23 +141,24 @@ class CocoGroundingEvaluator(object):
             labels = prediction["labels"].tolist()
 
             rles = [
-                mask_util.encode(np.array(mask[0, :, :, np.newaxis], dtype=np.uint8, order="F"))[0] 
+                mask_util.encode(
+                    np.array(mask[0, :, :, np.newaxis], dtype=np.uint8, order="F"))[0]
                 for mask in masks
             ]
             for rle in rles:
                 rle["counts"] = rle["counts"].decode("utf-8")
 
-            coco_results.extend(
-                [
-                    {
-                        "image_id": original_id,
-                        "category_id": labels[k],
-                        "segmentation": rle,
-                        "score": scores[k],
-                    }
-                    for k, rle in enumerate(rles)
-                ]
-            )
+            for k, rle in enumerate(rles):
+                if self.useCats and len(self.cat_ids_order) > 0:
+                    cat_id = int(self.cat_ids_order[labels[k]])
+                else:
+                    cat_id = int(labels[k])
+                coco_results.append({
+                    "image_id": original_id,
+                    "category_id": cat_id,
+                    "segmentation": rle,
+                    "score": scores[k],
+                })
         return coco_results
 
     def prepare_for_coco_keypoint(self, predictions):
@@ -246,20 +261,21 @@ def evaluate(self):
     elif p.iouType == "keypoints":
         computeIoU = self.computeOks
     self.ious = {
-        (imgId, catId): computeIoU(imgId, catId) 
-        for imgId in p.imgIds 
+        (imgId, catId): computeIoU(imgId, catId)
+        for imgId in p.imgIds
         for catId in catIds}
 
     evaluateImg = self.evaluateImg
     maxDet = p.maxDets[-1]
     evalImgs = [
-        evaluateImg(imgId, catId, areaRng, maxDet) 
-        for catId in catIds 
-        for areaRng in p.areaRng 
+        evaluateImg(imgId, catId, areaRng, maxDet)
+        for catId in catIds
+        for areaRng in p.areaRng
         for imgId in p.imgIds
     ]
     # this is NOT in the pycocotools code, but could be done outside
-    evalImgs = np.asarray(evalImgs).reshape(len(catIds), len(p.areaRng), len(p.imgIds))
+    evalImgs = np.asarray(evalImgs).reshape(
+        len(catIds), len(p.areaRng), len(p.imgIds))
     self._paramsEval = copy.deepcopy(self.params)
     # toc = time.time()
     # print('DONE (t={:0.2f}s).'.format(toc-tic))
