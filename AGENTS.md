@@ -15,6 +15,8 @@ Follow these notes so changes land cleanly and models stay reproducible.
 - `bash train_dist.sh ${GPU_NUM} config/cfg_odvg.py config/datasets_mixed_odvg.json ./logs`: distributed train; use `*_slurm.sh` variants on clusters.
 - `srun -t 0-01:00 --mem=64G -c 4 --gres=gpu:1 -p gpu_dia conda run -n openground python main.py --config_file config/cfg_odvg.py --datasets config/datasets_cell_debug.json --output_dir outputs/<run> --options epochs=1 batch_size=2`: quick GPU debug run following `job_1gpu.sh` assumptions.
 - `pytest tests`: run fast regression tests for data/prompt sanity; add `-k <keyword>` for focused checks.
+- Every session must append activities to `docs/experiments/timeline.md` so future runs retain chronological context; treat timeline upkeep as part of any workflow.
+- When producing visual results (success/failure cases, raw tiles), stash artifacts under `visuals/` and record prompts/JSON summaries so future debugging has references.
 
 ## Coding Style & Naming Conventions
 - Follow PEP 8, four-space indents, and keep lines ≤120 for long training loops.

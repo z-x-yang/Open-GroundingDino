@@ -12,6 +12,11 @@ source ~/.bashrc
 conda activate openground
 set -euo pipefail
 
+export TRANSFORMERS_OFFLINE=1
+export HF_HUB_OFFLINE=1
+export HF_HOME=${HF_HOME:-$HOME/.cache/huggingface}
+export TOKENIZERS_PARALLELISM=false
+
 OUTPUT_DIR="outputs/auto_runs/cell_ft_tune"
 mkdir -p "$OUTPUT_DIR"
 
@@ -26,7 +31,7 @@ CMD=(torchrun --standalone --nnodes=1 --nproc_per_node=${GPUS} --master_port=${P
   --pretrain_model_path weights/groundingdino_swint_ogc.pth \
   --note cell_ft_tune \
   --amp \
-  --options epochs=20 batch_size=4 lr=5e-05 lr_backbone=5e-06 freeze_keywords=[] )
+  --options epochs=30 batch_size=6 lr=4e-05 lr_backbone=4e-06 warmup_epochs=2 freeze_keywords=[] )
 
 if [ -f "$OUTPUT_DIR/checkpoint.pth" ]; then
   CMD+=(--resume "$OUTPUT_DIR/checkpoint.pth")

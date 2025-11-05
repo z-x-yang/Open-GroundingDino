@@ -167,3 +167,7 @@ datasets/*
 outputs/*
 logs/cell_debug_368246.out
 *.out
+jobs/visualize.slurm
+*.slurm
+data/seg_data_raw
+visuals/
