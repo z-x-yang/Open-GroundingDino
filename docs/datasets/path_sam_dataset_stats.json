@@ -1,0 +1,72 @@
+{
+  "breast_nucls": {
+    "type": "bbox",
+    "train_images": 1203,
+    "train_boxes": 14301,
+    "val_images": 349,
+    "val_boxes": 2779
+  },
+  "conic": {
+    "type": "instance->bbox",
+    "train_images": 4356,
+    "train_boxes": 491964,
+    "val_images": 484,
+    "val_boxes": 55559
+  },
+  "lizard": {
+    "type": "instance->bbox",
+    "train_images": 3909,
+    "train_boxes": 424039,
+    "val_images": 353,
+    "val_boxes": 42416
+  },
+  "midog21": {
+    "type": "bbox",
+    "train_images": 1767,
+    "train_boxes": 2505,
+    "val_images": 30,
+    "val_boxes": 1065
+  },
+  "midog22": {
+    "type": "bbox",
+    "train_images": 317,
+    "train_boxes": 575,
+    "val_images": 66,
+    "val_boxes": 95
+  },
+  "monusac": {
+    "type": "instance->bbox",
+    "train_images": 587,
+    "train_boxes": 917,
+    "val_images": 85,
+    "val_boxes": 148
+  },
+  "nuclick": {
+    "type": "instance->bbox",
+    "train_images": 5935,
+    "train_boxes": 20582,
+    "val_images": 655,
+    "val_boxes": 2238
+  },
+  "segpc": {
+    "type": "instance->bbox",
+    "train_images": 9630,
+    "train_boxes": 13119,
+    "val_images": 1028,
+    "val_boxes": 1405
+  },
+  "panuke": {
+    "type": "instance->bbox",
+    "train_images": 6796,
+    "train_boxes": 164504,
+    "val_images": 755,
+    "val_boxes": 18518
+  },
+  "puma": {
+    "type": "instance->bbox",
+    "train_images": 2117,
+    "train_boxes": 32012,
+    "val_images": 216,
+    "val_boxes": 2868
+  }
+}

@@ -17,7 +17,7 @@ torchrun --nproc_per_node=1 main.py --config-file config/cfg_odvg.py \
 ## Repository Map
 
 - `groundingdino/`, `models/GroundingDINO/`: upstream training/inference stack.
-- `datasets/path-sam/`: medical datasets, preprocessors, attribute tables (`CellType2Attributes.xlsx`), mappings, and build scripts.
+- `datasets/path-sam/`: medical datasets, preprocessors, attribute tables (`CellAttributesV2.csv`), mappings, and build scripts.
 - `outputs/`: generated ODVG jsonl, COCO eval splits, and patch tiles.
 - `tests/`: pytest guards for prompt/data sanity.
 - `tools/build_cell_grounding.py`: entry point that reads raw datasets, tiles slides (256 px, 10% overlap), filters to valid cell/nucleus labels, generates attribute-grounded prompts, and exports ODVG/COCO files.
@@ -30,7 +30,7 @@ torchrun --nproc_per_node=1 main.py --config-file config/cfg_odvg.py \
    - `ihc_tlymphoctype` (cell bboxes with lymphocyte/tumor classes),
    - `mix_midog22_b` (cell mitosis bboxes).
 2. **Mappings**: edit `datasets/path-sam/mappings.csv` to keep only cell/nucleus categories and map them to canonical names in the attribute sheet. Non-cell annotations must be flagged `Keep=False`.
-3. **Attribute prompts**: `datasets/path-sam/build/prompt_generator.py` reads `CellType2Attributes.xlsx` via `xlsx_utils.load_cell_attributes`, then generates compact, unique descriptions that stay below the BERT 256-token limit.
+3. **Attribute prompts**: `datasets/path-sam/build/prompt_generator.py` reads `CellAttributesV2.csv` via `xlsx_utils.load_cell_attributes_csv`, then generates compact, unique descriptions that stay below the BERT 256-token limit.
 4. **Tiling**: `patcher.project_and_filter_bboxes` intersects annotations with 256×256 tiles. Tiles use ≥25% visibility and ≥4 px per dimension; overlapping stride defaults to 230 (~10% overlap).
 
 ## Training & Evaluation

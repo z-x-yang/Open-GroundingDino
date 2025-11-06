@@ -16,8 +16,8 @@ def _load_attr_df():
     mod = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
     spec.loader.exec_module(mod)
-    df, _ = mod.load_cell_attributes(
-        str(REPO / 'datasets' / 'path-sam' / 'CellType2Attributes.xlsx'))
+    df, _ = mod.load_cell_attributes_csv(
+        str(REPO / 'datasets' / 'path-sam' / 'CellAttributesV2.csv'))
     return df
 
 

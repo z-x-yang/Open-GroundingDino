@@ -18,6 +18,34 @@ Follow these notes so changes land cleanly and models stay reproducible.
 - Every session must append activities to `docs/experiments/timeline.md` so future runs retain chronological context; treat timeline upkeep as part of any workflow.
 - When producing visual results (success/failure cases, raw tiles), stash artifacts under `visuals/` and record prompts/JSON summaries so future debugging has references.
 
+## GPU Environment & Debugging
+- **Conda env**: all GPU runs use `openground`. Activate with `conda activate openground` (or prefix commands with `conda run -n openground` in SLURM scripts).
+- **Interactive debug**: request a single GPU interactively, keep the shell alive, then iterate on code to avoid queue churn, e.g.
+  ```bash
+  srun -t 0-02:00 -p gpu_dia -c 4 --mem=64G --gres=gpu:1 --pty bash
+  # inside the session
+  conda activate openground
+  python main.py --config_file config/cfg_odvg.py \
+    --datasets config/datasets_cell_debug.json \
+    --output_dir outputs/debug_gpu \
+    --options epochs=1 batch_size=2
+  ```
+- **Batch debug (non-interactive)**: for short tests use `srun` without `--pty`, piping the command directly:
+  ```bash
+  srun -t 0-01:00 -p gpu_dia -c 4 --mem=64G --gres=gpu:1 \
+    conda run -n openground python main.py \
+      --config_file config/cfg_odvg.py \
+      --datasets config/datasets_cell_debug.json \
+      --output_dir outputs/debug_gpu \
+      --options epochs=1 batch_size=2
+  ```
+- **Multi-GPU training**: submit via SLURM wrappers (see `job_1gpu.sh`, `train_slurm.sh`, `jobs/*.slurm`). Adjust `--gres=gpu:4` and increase `batch_size` to saturate memory; example:
+  ```bash
+  sbatch --gres=gpu:4 jobs/cell_ft_train.slurm
+  ```
+  Update the job script to call `conda run -n openground python ...` with desired config/output paths.
+- Always verify `models/GroundingDINO/ops` CUDA extensions are built inside the GPU session before long runs (`python models/GroundingDINO/ops/test.py`).
+
 ## Coding Style & Naming Conventions
 - Follow PEP 8, four-space indents, and keep lines ≤120 for long training loops.
 - Favor `snake_case` for functions/vars, `CamelCase` for classes, and descriptive config filenames (`cfg_odvg.py`, `datasets_midog22_mini.json`).

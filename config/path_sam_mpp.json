@@ -1,0 +1,12 @@
+{
+  "breast_midog21": 0.5,
+  "mix_midog22_b": 0.5,
+  "mix_monusac20": 0.25,
+  "bone_segpc": 4.0,
+  "blood_nuclick": 2.0,
+  "mix_panuke": 0.5,
+  "skin_puma": 0.5,
+  "colon_lizard": 0.25,
+  "colon_conic": 0.25,
+  "breast_nucls": 0.5
+}

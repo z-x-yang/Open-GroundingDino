@@ -199,6 +199,45 @@ def main():
         VLDATA_PROCESS = getattr(cfg_mod, 'VLDATA_PROCESS')
         os.makedirs(VLDATA_PROCESS, exist_ok=True)
 
+        target_mpp = float(getattr(cfg_mod, 'TARGET_MPP', os.environ.get('PATH_SAM_TARGET_MPP', 0.5)))
+        default_dataset_mpp = {
+            'breast_midog21': 0.25,
+            'mix_midog22_b': 0.25,
+            'mix_monusac20': 0.5,
+            'bone_segpc': 0.3,
+            'blood_nuclick': 0.25,
+            'mix_panuke': 0.5,
+            'skin_puma': 0.5,
+            'colon_lizard': 0.5,
+            'colon_conic': 0.5,
+            'breast_nucls': 0.5,
+        }
+        dataset_mpp_overrides: Dict[str, float] = {}
+        mpp_cfg = getattr(cfg_mod, 'PATH_SAM_MPP_JSON', None)
+        if not mpp_cfg:
+            mpp_cfg = repo_root / 'config' / 'path_sam_mpp.json'
+        mpp_cfg_path = Path(mpp_cfg)
+        if mpp_cfg_path.exists():
+            try:
+                with open(mpp_cfg_path, 'r') as f:
+                    raw = json.load(f)
+                for key, val in raw.items():
+                    try:
+                        dataset_mpp_overrides[str(key).strip().lower()] = float(val)
+                    except Exception:
+                        continue
+                print(f"[build] loaded path_sam_mpp entries: {len(dataset_mpp_overrides)}")
+            except Exception as e:
+                print(f"[build] WARN: failed to load path_sam_mpp.json: {e}")
+
+        def lookup_dataset_mpp(dataset_tag: str) -> float:
+            tag = (dataset_tag or '').strip().lower()
+            if not tag:
+                return 0.0
+            if tag in dataset_mpp_overrides:
+                return dataset_mpp_overrides[tag]
+            return default_dataset_mpp.get(tag, 0.0)
+
         def map_label_to_standard(label: str, object_type: str, dataset: str = '') -> str:
             lab = str(label).strip()
             dskey = (str(dataset).strip().lower(), lab.lower())
@@ -308,8 +347,39 @@ def main():
                 except Exception:
                     return 0
                 width, height = img.size
+                instances = list(rec.get('instances', []))
+
+                # harmonise magnification if metadata is available
+                src_mpp = lookup_dataset_mpp(dataset_tag)
+                scale_factor = 1.0
+                if src_mpp and target_mpp and src_mpp > 0 and target_mpp > 0:
+                    scale_factor = src_mpp / target_mpp
+                if abs(scale_factor - 1.0) > 1e-3:
+                    new_w = int(round(width * scale_factor))
+                    new_h = int(round(height * scale_factor))
+                    if new_w >= 256 and new_h >= 256:
+                        resample = Image.BICUBIC if scale_factor < 1.0 else Image.BILINEAR
+                        img = img.resize((new_w, new_h), resample=resample)
+                        width, height = img.size
+                        scaled_instances = []
+                        for ins in instances:
+                            x0, y0, x1, y1 = ins['bbox']
+                            scaled_instances.append({
+                                **ins,
+                                'bbox': (
+                                    int(round(x0 * scale_factor)),
+                                    int(round(y0 * scale_factor)),
+                                    int(round(x1 * scale_factor)),
+                                    int(round(y1 * scale_factor)),
+                                )
+                            })
+                        instances = scaled_instances
+                    else:
+                        scale_factor = 1.0
+                        print(f"[build] skip scaling for {dataset_tag}: scaled size {new_w}x{new_h} < 256")
+
                 tiles = tiles_by_size(width, height, 256, 230)[:50]
-                labels = list({ins['label'] for ins in rec['instances']})
+                labels = list({ins['label'] for ins in instances})
                 # apply mappings; drop instances with keep=False (std=='')
                 mapped = {}
                 for lab in labels:
@@ -322,7 +392,7 @@ def main():
                 out_img_dir = os.path.join(out_root, 'patches', out_name)
                 os.makedirs(out_img_dir, exist_ok=True)
                 produced = 0
-                bbs = [ins['bbox'] for ins in rec['instances']]
+                bbs = [ins['bbox'] for ins in instances]
                 for (x0, y0, x1, y1) in tiles:
                     proj = patcher.project_and_filter_bboxes(
                         bbs, (x0, y0, x1, y1), 0.25, 4)
@@ -342,7 +412,7 @@ def main():
                         continue
                     present_labels = []
                     regions = []
-                    for ins in rec['instances']:
+                    for ins in instances:
                         inter = (
                             max(ins['bbox'][0], x0),
                             max(ins['bbox'][1], y0),

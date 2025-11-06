@@ -93,10 +93,10 @@ class ODVGDataset(VisionDataset):
                 ODVGDataset._tokenizer = None
         if ODVGDataset._attr_df is None:
             # load xlsx
-            xlsx_path = os.path.join(os.path.dirname(os.path.dirname(
-                __file__)), 'datasets', 'path-sam', 'CellType2Attributes.xlsx')
+            csv_path = os.path.join(os.path.dirname(os.path.dirname(
+                __file__)), 'datasets', 'path-sam', 'CellAttributesV2.csv')
             try:
-                df, _ = ODVGDataset._xlsx_utils.load_cell_attributes(xlsx_path)
+                df, _ = ODVGDataset._xlsx_utils.load_cell_attributes_csv(csv_path)
                 ODVGDataset._attr_df = df
             except Exception:
                 ODVGDataset._attr_df = None

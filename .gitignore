@@ -171,3 +171,5 @@ jobs/visualize.slurm
 *.slurm
 data/seg_data_raw
 visuals/
+*.err
+
