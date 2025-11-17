@@ -10,8 +10,6 @@ DATASETS = {
     "breast_nucls": {"path": "outputs/breast_nucls_train_sample.jsonl", "group": "nucleus"},
     "conic": {"path": "outputs/conic_train.jsonl", "group": "nucleus"},
     "lizard": {"path": "outputs/lizard_train.jsonl", "group": "nucleus"},
-    "midog21": {"path": "outputs/midog21_train_sample.jsonl", "group": "nucleus"},
-    "midog22": {"path": "outputs/midog22_train.jsonl", "group": "nucleus"},
     "monusac": {"path": "outputs/monusac_train.jsonl", "group": "nucleus"},
     "nuclick": {"path": "outputs/nuclick_train.jsonl", "group": "nucleus"},
     "segpc": {"path": "outputs/segpc_train.jsonl", "group": "cell"},

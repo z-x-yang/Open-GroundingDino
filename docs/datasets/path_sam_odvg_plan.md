@@ -144,3 +144,8 @@ Let me know if any of the assumptions above need adjustment before conversion be
 - Added `tools/analyze_bbox_stats.py`; stats saved to `docs/datasets/path_sam_bbox_stats.json`.
 - Nucleus datasets average ≈14×14 px boxes (relative area ≈0.7%), except MIDOG21/22, MoNuSAC, NuClick with much larger spans (relative area ≥0.1) indicating potential scale mismatches.
 - Cell datasets average ≈34×34 px (relative area ≈3.5%); SEGPC very large (relative area ≈0.35) and likely requires normalization or re-sampling.
+
+### 2025-11-06 Dataset Fixes
+- **MoNuSAC fallback + upsample**: reader now drops the coarse `Testing_image_mask` bboxes whenever they yield <500 instances and falls back to the high-resolution `monusac_cropped` tensors; additionally, sub-256px crops are padded so ODVG tiles remain 256×256. Box stats dropped from relative area 0.90 to **0.033** with ~13 k nuclei after re-export.
+- **SEGPC nucleus-only boxes**: exporter now isolates the `Nucleus_VALUE=40` stub from each plasma cell mask before bbox extraction, reducing relative area from 0.35 to **0.0026** (≈2.5 px margin) while keeping 2.4 k boxes across 298 tiles.
+- **Regenerated artifacts**: `PATH_SAM_BUILD_DATASETS=monusac,segpc python tools/build_cell_grounding.py` refreshed jsonl/COCO/patches, and `docs/datasets/path_sam_bbox_stats.json` was recomputed so downstream configs point to the new distributions (monusac boxes=13 416, segpc boxes=2 484).

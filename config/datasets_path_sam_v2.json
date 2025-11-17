@@ -7,21 +7,6 @@
     },
     {
       "root": "/",
-      "anno": "/n/lw_groups/hms/dbmi/yu/lab/zoy043/Works/Open-GroundingDino/outputs/midog21_train_sample.jsonl",
-      "dataset_mode": "odvg"
-    },
-    {
-      "root": "/",
-      "anno": "/n/lw_groups/hms/dbmi/yu/lab/zoy043/Works/Open-GroundingDino/outputs/midog22_train.jsonl",
-      "dataset_mode": "odvg"
-    },
-    {
-      "root": "/",
-      "anno": "/n/lw_groups/hms/dbmi/yu/lab/zoy043/Works/Open-GroundingDino/outputs/mix_midog22_b_sample.jsonl",
-      "dataset_mode": "odvg"
-    },
-    {
-      "root": "/",
       "anno": "/n/lw_groups/hms/dbmi/yu/lab/zoy043/Works/Open-GroundingDino/outputs/panuke_train.jsonl",
       "dataset_mode": "odvg"
     }
@@ -30,18 +15,6 @@
     {
       "root": "/",
       "anno": "/n/lw_groups/hms/dbmi/yu/lab/zoy043/Works/Open-GroundingDino/outputs/breast_nucls_val_coco.json",
-      "label_map": null,
-      "dataset_mode": "coco"
-    },
-    {
-      "root": "/",
-      "anno": "/n/lw_groups/hms/dbmi/yu/lab/zoy043/Works/Open-GroundingDino/outputs/midog21_val_coco.json",
-      "label_map": null,
-      "dataset_mode": "coco"
-    },
-    {
-      "root": "/",
-      "anno": "/n/lw_groups/hms/dbmi/yu/lab/zoy043/Works/Open-GroundingDino/outputs/midog22_val_coco.json",
       "label_map": null,
       "dataset_mode": "coco"
     },

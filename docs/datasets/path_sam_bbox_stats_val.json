@@ -1,0 +1,180 @@
+{
+  "datasets": {
+    "breast_nucls": {
+      "group": "nucleus",
+      "boxes": 3860,
+      "width": {
+        "mean": 27.541450777202073,
+        "median": 26.0
+      },
+      "height": {
+        "mean": 27.02020725388601,
+        "median": 26.0
+      },
+      "area": {
+        "mean": 788.8989637305699,
+        "median": 675.0
+      },
+      "relative_area": {
+        "mean": 0.012037642879189604,
+        "median": 0.0102996826171875
+      }
+    },
+    "conic": {
+      "group": "nucleus",
+      "boxes": 74906,
+      "width": {
+        "mean": 21.765199049475342,
+        "median": 20.0
+      },
+      "height": {
+        "mean": 21.033054761968334,
+        "median": 20.0
+      },
+      "area": {
+        "mean": 490.8196940165007,
+        "median": 384.0
+      },
+      "relative_area": {
+        "mean": 0.007489314178718578,
+        "median": 0.005859375
+      }
+    },
+    "lizard": {
+      "group": "nucleus",
+      "boxes": 30631,
+      "width": {
+        "mean": 22.89921974470308,
+        "median": 20
+      },
+      "height": {
+        "mean": 22.35062518363749,
+        "median": 18
+      },
+      "area": {
+        "mean": 829.5564624073651,
+        "median": 360
+      },
+      "relative_area": {
+        "mean": 0.012658027075307695,
+        "median": 0.0054931640625
+      }
+    },
+    "monusac": {
+      "group": "nucleus",
+      "boxes": 1618,
+      "width": {
+        "mean": 47.48454882571075,
+        "median": 48.0
+      },
+      "height": {
+        "mean": 47.97033374536465,
+        "median": 48.0
+      },
+      "area": {
+        "mean": 2392.0630407911003,
+        "median": 2040.0
+      },
+      "relative_area": {
+        "mean": 0.03649998536363373,
+        "median": 0.0311279296875
+      }
+    },
+    "nuclick": {
+      "group": "nucleus",
+      "boxes": 2321,
+      "width": {
+        "mean": 86.48815165876778,
+        "median": 92
+      },
+      "height": {
+        "mean": 85.93838862559242,
+        "median": 90
+      },
+      "area": {
+        "mean": 7604.915984489444,
+        "median": 6640
+      },
+      "relative_area": {
+        "mean": 0.11604180884535895,
+        "median": 0.101318359375
+      }
+    },
+    "panuke": {
+      "group": "cell",
+      "boxes": 18396,
+      "width": {
+        "mean": 24.78527940856708,
+        "median": 23.0
+      },
+      "height": {
+        "mean": 24.608393128941074,
+        "median": 23.0
+      },
+      "area": {
+        "mean": 674.1481843879104,
+        "median": 528.0
+      },
+      "relative_area": {
+        "mean": 0.01028668494244248,
+        "median": 0.008056640625
+      }
+    },
+    "puma": {
+      "group": "nucleus",
+      "boxes": 10637,
+      "width": {
+        "mean": 24.731691266334494,
+        "median": 24
+      },
+      "height": {
+        "mean": 25.107173075115163,
+        "median": 24
+      },
+      "area": {
+        "mean": 659.227695778885,
+        "median": 540
+      },
+      "relative_area": {
+        "mean": 0.010059016354047929,
+        "median": 0.00823974609375
+      }
+    },
+    "segpc": {
+      "group": "cell",
+      "boxes": 249,
+      "width": {
+        "mean": 12.847389558232932,
+        "median": 13
+      },
+      "height": {
+        "mean": 12.8714859437751,
+        "median": 13
+      },
+      "area": {
+        "mean": 166.14859437751005,
+        "median": 168
+      },
+      "relative_area": {
+        "mean": 0.0025352263546372994,
+        "median": 0.0025634765625
+      }
+    }
+  },
+  "groups": {
+    "nucleus": {
+      "boxes": 123973,
+      "width_mean": 24.027167205762545,
+      "height_mean": 23.461285925161125,
+      "area_mean": 756.2469811975188,
+      "relative_area_mean": 0.011539413165245344
+    },
+    "cell": {
+      "boxes": 18645,
+      "width_mean": 24.625851434700994,
+      "height_mean": 24.451649235720033,
+      "area_mean": 667.363958165728,
+      "relative_area_mean": 0.010183165865565919
+    }
+  }
+}

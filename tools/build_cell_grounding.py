@@ -52,6 +52,20 @@ def main():
     cfg_mod = _load_module("cfg_mod", str(
         repo_root / "datasets" / "path-sam" / "utils" / "cfg.py"))
 
+    dataset_filter_raw = os.environ.get("PATH_SAM_BUILD_DATASETS", "").strip()
+    dataset_filter = None
+    if dataset_filter_raw:
+        dataset_filter = {
+            token.strip().lower()
+            for token in dataset_filter_raw.split(",")
+            if token.strip()
+        }
+
+    def should_run(name: str) -> bool:
+        if not dataset_filter:
+            return True
+        return name.strip().lower() in dataset_filter
+
     xlsx_path = repo_root / "datasets" / "path-sam" / "CellType2Attributes.xlsx"
     df, cols = xlsx_utils.load_cell_attributes(str(xlsx_path))
     print(f"[build] start: load attributes from {xlsx_path}")
@@ -156,11 +170,11 @@ def main():
             else:
                 manual = {
                     'tumor': 'Epithelial cell',
-                    'fibroblast': 'Fibroblast',
-                    'mitotic figure': 'mitoses',
+                    'fibroblast': 'Cancer-Associated Fibroblasts',
+                    'mitotic figure': 'Mitosis (mitotic cell)',
                     'vascular endothelium': 'Endothelial cell',
                     'myoepithelium': 'Myoepithelial cell',
-                    'apoptotic body': 'Apoptotic cell',
+                    'apoptotic body': 'Apoptosis (apoptotic cell)',
                     'ductal epithelium': 'Epithelial cell',
                 }
                 k = lab.lower()
@@ -171,7 +185,16 @@ def main():
             return row
 
         full = full.apply(_override, axis=1)
-        # write CSV (overwrite)
+        if mappings_csv.exists():
+            try:
+                existing = pd.read_csv(mappings_csv)
+                full = pd.concat([existing, full], ignore_index=True)
+                full = full.drop_duplicates(
+                    subset=["Dataset", "OriginalLabel", "ObjectType"],
+                    keep="first",
+                )
+            except Exception:
+                pass
         full.to_csv(mappings_csv, index=False)
         print(
             f"[build] wrote initial mappings to {mappings_csv} (rows={len(full)})")
@@ -204,13 +227,13 @@ def main():
             'breast_midog21': 0.25,
             'mix_midog22_b': 0.25,
             'mix_monusac20': 0.5,
-            'bone_segpc': 0.3,
+            'bone_segpc': 0.03125,
             'blood_nuclick': 0.25,
-            'mix_panuke': 0.5,
-            'skin_puma': 0.5,
+            'mix_panuke': 0.25,
+            'skin_puma': 0.25,
             'colon_lizard': 0.5,
             'colon_conic': 0.5,
-            'breast_nucls': 0.5,
+            'breast_nucls': 0.25,
         }
         dataset_mpp_overrides: Dict[str, float] = {}
         mpp_cfg = getattr(cfg_mod, 'PATH_SAM_MPP_JSON', None)
@@ -253,35 +276,94 @@ def main():
                 return 'Epithelial cell'
             if lab.lower() == 'mitoses':
                 return 'Mitosis (mitotic cell)'
-            # manual mapping for nucleus categories from breast_nucls
+            key = lab.lower()
+            drop_labels = {'ambiguous', 'background', 'other', 'other cell', 'diverse', 'unknown', 'fov', 'border'}
+            if key in drop_labels:
+                return ''
             manual = {
                 'tumor': 'Epithelial cell',
-                'fibroblast': 'Fibroblast',
+                'fibroblast': 'Cancer-Associated Fibroblasts',
+                'fibroblasts': 'Cancer-Associated Fibroblasts',
                 'mitotic figure': 'Mitosis (mitotic cell)',
                 'vascular endothelium': 'Endothelial cell',
                 'myoepithelium': 'Myoepithelial cell',
-                'apoptotic body': 'Apoptotic cell',
+                'apoptotic body': 'Apoptosis (apoptotic cell)',
                 'ductal epithelium': 'Epithelial cell',
+                'epithelial': 'Epithelial cell',
+                'epithelium': 'Epithelial cell',
+                'plasma': 'Plasma cell',
+                'plasma cell': 'Plasma cell',
+                'plasma cells': 'Plasma cell',
+                'lymphocyte': 'Lymphocyte',
+                'macrophage': 'Macrophage',
+                'macrophages': 'Macrophage',
+                'neutrophil': 'Neutrophil',
+                'neutrophils': 'Neutrophil',
+                'eosinophil': 'Eosinophil',
+                'eosinophils': 'Eosinophil',
+                'neoplastic cells': 'Invasive cancer cells',
+                'inflammatory': 'Leukocyte (general)',
+                'connective tissue': 'Cancer-Associated Fibroblasts',
+                'connective/soft tissue cells': 'Cancer-Associated Fibroblasts',
+                'dead cells': 'Dead cells',
+                'leukocyte': 'Leukocyte (general)',
+                'leukocytes': 'Leukocyte (general)',
+                'nuclei_tumor': 'Invasive cancer cells',
+                'nuclei_lymphocyte': 'Lymphocyte',
+                'nuclei_plasma_cell': 'Plasma cell',
+                'nuclei_stroma': 'Macrophage',
+                'nuclei_histiocyte': 'Macrophage',
+                'nuclei_melanophage': 'Macrophage',
+                'nuclei_endothelium': 'Endothelial cell',
+                'nuclei_neutrophil': 'Neutrophil',
+                'nuclei_epithelium': 'Epithelial cell',
+                'nuclei_apoptosis': 'Apoptosis (apoptotic cell)',
+                'not mitoses': 'Non_mitosis (resting cells)',
+                'non mitoses': 'Non_mitosis (resting cells)',
+                'non_mitosis': 'Non_mitosis (resting cells)',
             }
-            key = lab.lower()
             if key in manual:
                 return manual[key]
             # default: discard unknown (return empty)
             return ''
 
-        def export_odvg_sample(recs: List[Dict], object_type: str, out_name: str, dataset_tag: str = ''):
-            # choose writable root for outputs: prefer repo_root/outputs
+        def split_train_val(pool: List[Dict], val_ratio: float = 0.1):
+            if not pool:
+                return [], []
+            shuffled = pool[:]
+            random.Random(42).shuffle(shuffled)
+            n_val = max(1, int(round(len(shuffled) * val_ratio)))
+            if n_val >= len(shuffled):
+                n_val = max(1, len(shuffled) // 5 or 1)
+            val = shuffled[:n_val]
+            train = shuffled[n_val:]
+            if not train:
+                train = val
+            if not val:
+                val = train[-1:]
+                train = train[:-1] or train
+            return train, val
+
+        def get_output_root():
             out_root = str(repo_root / 'outputs')
             os.makedirs(out_root, exist_ok=True)
-            # if VLDATA_PROCESS is writable, use it instead
             try:
                 if os.path.isdir(VLDATA_PROCESS) and os.access(VLDATA_PROCESS, os.W_OK):
                     out_root = VLDATA_PROCESS
             except Exception:
                 pass
+            return out_root
+
+        def export_odvg_sample(recs: List[Dict], object_type: str, out_name: str, dataset_tag: str = '', coco_name: str = ''):
+            out_root = get_output_root()
             out_jsonl = os.path.join(out_root, f"{out_name}.jsonl")
             # cache for descriptions to reduce tokenizer calls
             desc_cache: Dict[str, str] = {}
+            dataset_limits = {
+                'mix_monusac20': {'max_rel_area': 0.2},
+                'bone_segpc': {'max_rel_area': 0.25},
+            }
+            ds_limits = dataset_limits.get((dataset_tag or '').strip().lower(), {})
 
             def get_desc_cached(std: str) -> str:
                 key = f"{object_type}::{std}"
@@ -329,6 +411,23 @@ def main():
 
             writer_lock = threading.Lock() if threading else None
             f_jsonl = open(out_jsonl, 'w')
+            coco_images = [] if coco_name else None
+            coco_annos = [] if coco_name else None
+            coco_cat = {} if coco_name else None
+            img_idx_counter = 1
+            anno_idx_counter = 1
+
+            def flush_coco():
+                nonlocal coco_images, coco_annos, coco_cat
+                if not coco_name or not coco_images or not coco_annos:
+                    return
+                categories = [{'id': cid, 'name': name} for name, cid in coco_cat.items()]
+                coco_exporter.export_coco(
+                    coco_images,
+                    coco_annos,
+                    categories,
+                    os.path.join(out_root, coco_name)
+                )
 
             def write_record(rec: Dict):
                 line = json.dumps(rec, ensure_ascii=False) + "\n"
@@ -339,6 +438,7 @@ def main():
                     f_jsonl.write(line)
 
             def process_one_image(rec: Dict) -> int:
+                nonlocal img_idx_counter, anno_idx_counter
                 img_path = rec['image_path']
                 if not os.path.exists(img_path):
                     return 0
@@ -357,7 +457,7 @@ def main():
                 if abs(scale_factor - 1.0) > 1e-3:
                     new_w = int(round(width * scale_factor))
                     new_h = int(round(height * scale_factor))
-                    if new_w >= 256 and new_h >= 256:
+                    if scale_factor < 1.0 or (new_w >= 256 and new_h >= 256):
                         resample = Image.BICUBIC if scale_factor < 1.0 else Image.BILINEAR
                         img = img.resize((new_w, new_h), resample=resample)
                         width, height = img.size
@@ -378,15 +478,25 @@ def main():
                         scale_factor = 1.0
                         print(f"[build] skip scaling for {dataset_tag}: scaled size {new_w}x{new_h} < 256")
 
+                pad_w = max(width, 256)
+                pad_h = max(height, 256)
+                if pad_w != width or pad_h != height:
+                    padded = Image.new(img.mode, (pad_w, pad_h))
+                    padded.paste(img, (0, 0))
+                    img = padded
+                    width, height = img.size
+
                 tiles = tiles_by_size(width, height, 256, 230)[:50]
                 labels = list({ins['label'] for ins in instances})
                 # apply mappings; drop instances with keep=False (std=='')
                 mapped = {}
+                label_to_std = {}
                 for lab in labels:
                     std = map_label_to_standard(lab, object_type, dataset_tag)
                     if not std:
                         continue
                     mapped[lab] = get_desc_cached(std)
+                    label_to_std[lab] = std
                 if not mapped:
                     return 0
                 out_img_dir = os.path.join(out_root, 'patches', out_name)
@@ -396,18 +506,6 @@ def main():
                 for (x0, y0, x1, y1) in tiles:
                     proj = patcher.project_and_filter_bboxes(
                         bbs, (x0, y0, x1, y1), 0.25, 4)
-                    if not proj and bbs:
-                        inters = []
-                        for bb in bbs:
-                            ix0 = max(bb[0], x0)
-                            iy0 = max(bb[1], y0)
-                            ix1 = min(bb[2], x1)
-                            iy1 = min(bb[3], y1)
-                            if ix1 > ix0 and iy1 > iy0:
-                                inters.append(
-                                    (ix0 - x0, iy0 - y0, ix1 - x0, iy1 - y0))
-                        if inters:
-                            proj = [inters[0]]
                     if not proj:
                         continue
                     present_labels = []
@@ -423,28 +521,88 @@ def main():
                             local = (inter[0]-x0, inter[1]-y0,
                                      inter[2]-x0, inter[3]-y0)
                             if (local[2]-local[0]) >= 4 and (local[3]-local[1]) >= 4:
-                                if ins['label'] in mapped:
-                                    present_labels.append(ins['label'])
+                                lab = ins['label']
+                                if lab in mapped:
+                                    present_labels.append(lab)
                                     regions.append(
-                                        {'bbox': [local[0], local[1], local[2], local[3]], 'phrase': mapped[ins['label']]})
+                                        {
+                                            'bbox': [local[0], local[1], local[2], local[3]],
+                                            'phrase': mapped[lab],
+                                            'std': label_to_std.get(lab, '')
+                                        }
+                                    )
+                    if not regions:
+                        continue
+                    tile_img = img.crop((x0, y0, x1, y1))
+                    tile_w, tile_h = tile_img.size
+                    tile_area = float(tile_w * tile_h) if tile_w and tile_h else 0.0
+                    if tile_area and ds_limits.get('max_rel_area') is not None:
+                        max_rel = ds_limits['max_rel_area']
+                        filtered_regions = []
+                        filtered_labels = []
+                        for lab, reg in zip(present_labels, regions):
+                            bx = reg['bbox']
+                            bw = max(0, bx[2] - bx[0])
+                            bh = max(0, bx[3] - bx[1])
+                            rel_area = ((bw * bh) / tile_area) if tile_area else 0.0
+                            if rel_area <= max_rel:
+                                filtered_regions.append(reg)
+                                filtered_labels.append(lab)
+                        regions = filtered_regions
+                        present_labels = filtered_labels
                     if not regions:
                         continue
                     tile_img_path = os.path.join(
                         out_img_dir, f"{Path(img_path).stem}_{x0}_{y0}.png")
                     # fast PNG save
-                    img.crop((x0, y0, x1, y1)).save(
+                    tile_img.save(
                         tile_img_path, compress_level=1, optimize=False)
                     caption = " ".join([mapped[l]
                                        for l in sorted(set(present_labels))])
+                    regions_to_write = [
+                        {'bbox': reg['bbox'], 'phrase': reg['phrase']}
+                        for reg in regions
+                    ]
                     write_record({
                         'filename': tile_img_path,
-                        'height': (y1-y0),
-                        'width': (x1-x0),
+                        'height': tile_h,
+                        'width': tile_w,
                         'grounding': {
                             'caption': caption if caption.endswith('.') else caption + '.',
-                            'regions': regions
+                            'regions': regions_to_write
                         }
                     })
+                    if coco_name:
+                        if coco_images is not None:
+                            coco_images.append(
+                                {
+                                    'id': img_idx_counter,
+                                    'file_name': tile_img_path,
+                                    'width': (x1 - x0),
+                                    'height': (y1 - y0)
+                                }
+                            )
+                        if coco_annos is not None and coco_cat is not None:
+                            for reg in regions:
+                                std = reg.get('std')
+                                if not std:
+                                    continue
+                                cat_name = f"{std} {object_type}"
+                                if cat_name not in coco_cat:
+                                    coco_cat[cat_name] = len(coco_cat) + 1
+                                bx = reg['bbox']
+                                coco_annos.append(
+                                    {
+                                        'id': anno_idx_counter,
+                                        'image_id': img_idx_counter,
+                                        'category_id': coco_cat[cat_name],
+                                        'bbox': [int(bx[0]), int(bx[1]), int(bx[2]-bx[0]), int(bx[3]-bx[1])],
+                                        'area': float((bx[2]-bx[0]) * (bx[3]-bx[1])),
+                                        'iscrowd': 0
+                                    }
+                                )
+                                anno_idx_counter += 1
+                        img_idx_counter += 1
                     produced += 1
                 return produced
 
@@ -470,6 +628,8 @@ def main():
             if produced_total > 0:
                 print(
                     f"[build] wrote ODVG sample: {out_jsonl} count={produced_total}")
+            if coco_name:
+                flush_coco()
 
         def export_midog22_train_val():
             # read bigger pool and split 8:2
@@ -722,84 +882,173 @@ def main():
             export_odvg_sample(train_recs, 'nucleus',
                                'breast_nucls_train_sample', 'breast_nucls')
             export_odvg_sample(val_recs, 'nucleus',
-                               'breast_nucls_val_sample', 'breast_nucls')
-            # COCO val build with multiple categories mapping-aware
-            out_root = str(repo_root / 'outputs')
-            os.makedirs(out_root, exist_ok=True)
-            cats_map = {}
-            images_coco, annos_coco = [], []
-            img_id = 1
-            ann_id = 1
-            cat_id = 1
-            for rec in _tqdm(val_recs, desc="nucls val images"):
-                p = rec['image_path']
-                if not os.path.exists(p):
-                    continue
-                try:
-                    img = Image.open(p).convert('RGB')
-                except Exception:
-                    continue
-                w, h = img.size
-                images_coco.append(
-                    {'id': img_id, 'file_name': p, 'width': w, 'height': h})
-                for ins in rec['instances']:
-                    std = map_label_to_standard(
-                        ins['label'], 'nucleus', 'breast_nucls')
-                    if not std:
-                        continue
-                    name = std + ' nucleus'
-                    if name not in cats_map:
-                        cats_map[name] = cat_id
-                        cat_id += 1
-                    cid = cats_map[name]
-                    x0, y0, x1, y1 = ins['bbox']
-                    annos_coco.append({'id': ann_id, 'image_id': img_id, 'category_id': cid, 'bbox': [
-                                      x0, y0, x1-x0, y1-y0], 'area': (x1-x0)*(y1-y0), 'iscrowd': 0})
-                    ann_id += 1
-                img_id += 1
-            cats = [{'id': v, 'name': k} for k, v in cats_map.items()]
-            coco_exporter.export_coco(images_coco, annos_coco, cats, os.path.join(
-                out_root, 'breast_nucls_val_coco.json'))
+                               'breast_nucls_val_sample', 'breast_nucls', coco_name='breast_nucls_val_coco.json')
+
+        def export_monusac_train_val():
+            monusac_root = os.path.join(VLDATA_RAW, 'monusac_processed')
+            pool = readers.read_monusac_processed(monusac_root)
+            if not pool:
+                print('[build] skip MoNuSAC (raw missing)')
+                return
+            train_recs, val_recs = split_train_val(pool, 0.1)
+            print(f"[build] MoNuSAC records: train={len(train_recs)} val={len(val_recs)}")
+            export_odvg_sample(train_recs, 'nucleus', 'monusac_train', 'mix_monusac20')
+            export_odvg_sample(val_recs, 'nucleus', 'monusac_val', 'mix_monusac20', coco_name='monusac_val_coco.json')
+
+        def export_lizard_train_val():
+            lizard_root = os.path.join(VLDATA_RAW, 'Lizard')
+            try:
+                pool = readers.read_lizard(lizard_root)
+            except ImportError:
+                print('[build] skip Lizard (scipy missing)')
+                return
+            if not pool:
+                print('[build] skip Lizard (raw missing)')
+                return
+            train_recs, val_recs = split_train_val(pool, 0.1)
+            print(f"[build] Lizard records: train={len(train_recs)} val={len(val_recs)}")
+            export_odvg_sample(train_recs, 'nucleus', 'lizard_train', 'colon_lizard')
+            export_odvg_sample(val_recs, 'nucleus', 'lizard_val', 'colon_lizard', coco_name='lizard_val_coco.json')
+
+        def export_conic_train_val():
+            conic_root = os.path.join(VLDATA_RAW, 'CoNIC')
+            pool = readers.read_conic(conic_root)
+            if not pool:
+                print('[build] skip CoNIC (raw missing)')
+                return
+            train_recs, val_recs = split_train_val(pool, 0.1)
+            print(f"[build] CoNIC records: train={len(train_recs)} val={len(val_recs)}")
+            export_odvg_sample(train_recs, 'nucleus', 'conic_train', 'colon_conic')
+            export_odvg_sample(val_recs, 'nucleus', 'conic_val', 'colon_conic', coco_name='conic_val_coco.json')
+
+        def export_panuke_train_val():
+            panuke_root = os.path.join(VLDATA_RAW, 'panuke')
+            pool = readers.read_panuke(panuke_root)
+            if not pool:
+                print('[build] skip Panuke (raw missing)')
+                return
+            train_recs, val_recs = split_train_val(pool, 0.1)
+            print(f"[build] Panuke records: train={len(train_recs)} val={len(val_recs)}")
+            export_odvg_sample(train_recs, 'cell', 'panuke_train', 'mix_panuke')
+            export_odvg_sample(val_recs, 'cell', 'panuke_val', 'mix_panuke', coco_name='panuke_val_coco.json')
+
+        def export_puma_train_val():
+            puma_root = os.path.join(VLDATA_RAW, 'puma')
+            pool = readers.read_puma(puma_root)
+            if not pool:
+                print('[build] skip PUMA (raw missing)')
+                return
+            train_recs, val_recs = split_train_val(pool, 0.1)
+            print(f"[build] PUMA records: train={len(train_recs)} val={len(val_recs)}")
+            export_odvg_sample(train_recs, 'nucleus', 'puma_train', 'skin_puma')
+            export_odvg_sample(val_recs, 'nucleus', 'puma_val', 'skin_puma', coco_name='puma_val_coco.json')
+
+        def export_segpc_train_val():
+            segpc_root = os.path.join(VLDATA_RAW, 'segpc')
+            pool = readers.read_segpc(segpc_root)
+            if not pool:
+                print('[build] skip SEGPC (raw missing)')
+                return
+            train_recs = [rec for rec in pool if rec.get('split') == 'train']
+            val_recs = [rec for rec in pool if rec.get('split') == 'validation']
+            if not train_recs:
+                train_recs = [rec for rec in pool if rec.get('split') not in ('validation',)]
+            if not val_recs:
+                train_recs, val_recs = split_train_val(pool, 0.1)
+            print(f"[build] SEGPC records: train={len(train_recs)} val={len(val_recs)}")
+            export_odvg_sample(train_recs, 'cell', 'segpc_train', 'bone_segpc')
+            export_odvg_sample(val_recs, 'cell', 'segpc_val', 'bone_segpc', coco_name='segpc_val_coco.json')
+
+        def export_nuclick_train_val():
+            nuclick_root = os.path.join(VLDATA_RAW, 'Hemato_Data')
+            pool = readers.read_nuclick(nuclick_root)
+            if not pool:
+                print('[build] skip NuClick (raw missing)')
+                return
+            train_recs, val_recs = split_train_val(pool, 0.1)
+            print(f"[build] NuClick records: train={len(train_recs)} val={len(val_recs)}")
+            export_odvg_sample(train_recs, 'cell', 'nuclick_train', 'blood_nuclick')
+            export_odvg_sample(val_recs, 'cell', 'nuclick_val', 'blood_nuclick', coco_name='nuclick_val_coco.json')
 
         # IHC (wrap to avoid blocking MIDOG)
-        try:
-            ihc_root = os.path.join(VLDATA_RAW, 'tlymph')
-            if os.path.isdir(ihc_root):
-                print("[build] start: read ihc_tlymphoctype")
-                recs = readers.read_ihc_tlymphoctype(ihc_root)[:3]
-                export_odvg_sample(recs, 'cell', 'ihc_tlymphoctype_sample')
-            else:
-                print(f"[build] skip IHC, not found: {ihc_root}")
-        except Exception as e:
-            print('[build] IHC export skipped:', e)
+        if should_run('ihc_tlymphoctype_sample'):
+            try:
+                ihc_root = os.path.join(VLDATA_RAW, 'tlymph')
+                if os.path.isdir(ihc_root):
+                    print("[build] start: read ihc_tlymphoctype")
+                    recs = readers.read_ihc_tlymphoctype(ihc_root)[:3]
+                    export_odvg_sample(recs, 'cell', 'ihc_tlymphoctype_sample')
+                else:
+                    print(f"[build] skip IHC, not found: {ihc_root}")
+            except Exception as e:
+                print('[build] IHC export skipped:', e)
 
         # MIDOG22
         midog_json = os.path.join(
             VLDATA_RAW, 'midog2', 'MIDOG2022_training.json')
         midog_imgd = os.path.join(VLDATA_RAW, 'midog2', 'images')
-        try:
-            if os.path.isfile(midog_json) and os.path.isdir(midog_imgd):
-                print("[build] start: read MIDOG22 small sample")
-                recs = readers.read_midog_json(midog_json, midog_imgd)[:3]
-                export_odvg_sample(recs, 'cell', 'mix_midog22_b_sample')
-            else:
-                print(f"[build] skip MIDOG22, not found: {midog_json}")
-        except Exception as e:
-            print('[build] MIDOG22 export skipped:', e)
+        if should_run('midog22_sample'):
+            try:
+                if os.path.isfile(midog_json) and os.path.isdir(midog_imgd):
+                    print("[build] start: read MIDOG22 small sample")
+                    recs = readers.read_midog_json(midog_json, midog_imgd)[:3]
+                    export_odvg_sample(recs, 'cell', 'mix_midog22_b_sample')
+                else:
+                    print(f"[build] skip MIDOG22, not found: {midog_json}")
+            except Exception as e:
+                print('[build] MIDOG22 export skipped:', e)
         # finally attempt full train/val export from MIDOG22
-        try:
-            export_midog22_train_val()
-        except Exception as e:
-            print('[build] MIDOG22 full export skipped:', e)
+        if should_run('midog22'):
+            try:
+                export_midog22_train_val()
+            except Exception as e:
+                print('[build] MIDOG22 full export skipped:', e)
         # export MIDOG21 and nucls
-        try:
-            export_midog21_train_val()
-        except Exception as e:
-            print('[build] MIDOG21 export skipped:', e)
-        try:
-            export_breast_nucls_train_val()
-        except Exception as e:
-            print('[build] nucls export skipped:', e)
+        if should_run('midog21'):
+            try:
+                export_midog21_train_val()
+            except Exception as e:
+                print('[build] MIDOG21 export skipped:', e)
+        if should_run('breast_nucls'):
+            try:
+                export_breast_nucls_train_val()
+            except Exception as e:
+                print('[build] nucls export skipped:', e)
+        if should_run('monusac'):
+            try:
+                export_monusac_train_val()
+            except Exception as e:
+                print('[build] MoNuSAC export skipped:', e)
+        if should_run('lizard'):
+            try:
+                export_lizard_train_val()
+            except Exception as e:
+                print('[build] Lizard export skipped:', e)
+        if should_run('conic'):
+            try:
+                export_conic_train_val()
+            except Exception as e:
+                print('[build] CoNIC export skipped:', e)
+        if should_run('panuke'):
+            try:
+                export_panuke_train_val()
+            except Exception as e:
+                print('[build] Panuke export skipped:', e)
+        if should_run('puma'):
+            try:
+                export_puma_train_val()
+            except Exception as e:
+                print('[build] PUMA export skipped:', e)
+        if should_run('segpc'):
+            try:
+                export_segpc_train_val()
+            except Exception as e:
+                print('[build] SEGPC export skipped:', e)
+        if should_run('nuclick'):
+            try:
+                export_nuclick_train_val()
+            except Exception as e:
+                print('[build] NuClick export skipped:', e)
     except Exception as e:
         print("[build] sample export failed:", e)
         print("[build] pipeline scaffolding ready")

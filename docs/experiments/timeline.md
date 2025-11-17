@@ -76,3 +76,20 @@
 - **Dataset stats snapshot**: wrote `docs/datasets/path_sam_dataset_stats.json` capturing image/box counts for each ODVG split (helps cross-check future re-exports).
 - **Unified training (job 368418)**: 5-epoch torchrun finished (≈3 h); mAP peaked at epoch 1 (0.0494) before declining after LR drop (epoch 4 mAP ≈2.7e-4). Latest loss steady around 0.19 bbox / 24 CE with LR=1e-5.
 - **Post-train eval (job 368427)**: re-ran evaluator on `checkpoint_best_regular.pth`; top APs—nuclick 0.126, breast_nucls 0.051, puma 0.045, panuke 0.021, segpc 0.0078; CoNIC/Lizard remain <0.005, MIDOG21/22 ≈0.
+
+## 2025-11-06
+
+- **Dataset consolidation**: drafted `docs/experiments/path_sam_dataset_overview_2025-11-06.md` summarizing 10 ODVG datasets（原始规模、MPP、tile 归一化、标签映射、训练风险），后续任务含扩展 `mappings.csv` 与 MPP 采样策略。
+- **MPP audit pass**: 更新 `config/path_sam_mpp.json` 中 breast_midog21 等 10 个数据集的 MPP（0.0625-0.5），并相应重算 tile 归一化估计，文档风险列表同步强调高分辨率数据需要过采样。
+- **Image size sweep**: 逐个访问原始目录（nucls、MIDOG21、midog2、Lizard、CoNIC、MoNuSAC、panuke、puma、segpc、ihc_nuclick），直接读取示例文件/NPY tensor 获取真实图像尺寸并更新文档；后续可脚本化生成统计 JSON。
+- **Sample curation**: 把上述示例图像整理到 `visuals/dataset_samples/`（按数据集分文件夹，必要时从 NPY/TIF 转 PNG），便于快速预览尺寸与内容。
+- **Tile counts refresh**: 使用 `outputs/patches/*` 实际 PNG 数量替换文档中的 tile 估算列，确保训练计划以真实供给为准。
+- **MoNuSAC & SEGPC fix**: rewrote dataset exporters to split MoNuSAC masks into connected components and to keep only nucleus channels for SEGPC, regenerated jsonl/COCO/patches, ran `tools/analyze_bbox_stats.py` (monusac rel area → 0.033, segpc → 0.0026).
+- **CPU smoke attempt**: tried `python main.py --config_file config/cfg_odvg.py --datasets config/datasets_path_sam_full.json --output_dir outputs/path_sam_ft_full --device cpu --options epochs=1 batch_size=2 save_checkpoint_interval=1 use_ema=False --num_workers 0`; run confirmed tokenizer cache + CPU fallback path load but timed out after ~1 h because multi-scale deformable attention fell back to the slow PyTorch implementation (no CUDA). Need proper CUDA build on SLURM before rerunning full training/eval.
+- **BBox stats refresh (val)**: 重新计算各数据集 COCO val 的 bbox 统计（含 relative area），写入 `docs/datasets/path_sam_bbox_stats_val.json`，并用于回答本轮 bbox 尺度对比需求。
+
+## 2025-11-16
+
+- **Raw vs. tile samples**: 为 midog21/midog22/MoNuSAC/NuClick 生成成对可视化（`visuals/raw_vs_tile_20251116/*`），左图为原始 WSI/ROI（含原标注 bbox/seg mask），右图为下采样后 256×256 tile，便于审查尺度差异与归一化流程；脚本自动写入尺寸和缩放倍率信息，供后续文档/汇报引用。
+- **MIDOG 剔除**: 为避免“大 ROI bbox”干扰单细胞检测，已将 MIDOG21/22 及 mix_midog22_b 从所有训练/评测配置中移除，同时更新 `config/datasets_*.json`、`docs/datasets/path_sam_dataset_stats.json`、`docs/datasets/path_sam_bbox_stats*.json` 与概览文档，后续默认仅使用 8 个细胞/核级数据集。
+- **BBox stats refresh (val)**: 重新计算各数据集 COCO val 的 bbox 统计（含 relative area），写入 `docs/datasets/path_sam_bbox_stats_val.json`，并用于回答本轮 bbox 尺度对比需求。

@@ -1,54 +1,56 @@
 Dataset,OriginalLabel,ObjectType,StandardCellName,Keep,Note
-breast_nucls,tumor,nucleus,Invasive cancer cells,True,manual map
-breast_nucls,fibroblast,nucleus,Cancer-Associated Fibroblasts,True,manual map
-breast_nucls,lymphocyte,nucleus,Lymphocyte,True,manual map
-breast_nucls,plasma cell,nucleus,Plasma cell,True,manual map
-breast_nucls,macrophage,nucleus,Macrophage,True,manual map
-breast_nucls,mitotic figure,nucleus,Mitosis (mitotic cell),True,manual map
+breast_nucls,tumor,nucleus,Epithelial cell,True,manual map
+breast_nucls,fibroblast,nucleus,Fibroblast,True,manual map
+breast_nucls,lymphocyte,nucleus,Lymphocyte,True,
+breast_nucls,plasma cell,nucleus,Plasma cell,True,
+breast_nucls,macrophage,nucleus,Macrophage,True,
+breast_nucls,mitotic figure,nucleus,mitoses,True,manual map
 breast_nucls,vascular endothelium,nucleus,Endothelial cell,True,manual map
-breast_nucls,myoepithelium,nucleus,Smooth muscle cell / Myofibroblast,True,manual map
-breast_nucls,apoptotic body,nucleus,Apoptosis (apoptotic cell),True,manual map
-breast_nucls,neutrophil,nucleus,Neutrophil,True,manual map
+breast_nucls,myoepithelium,nucleus,Myoepithelial cell,True,manual map
+breast_nucls,apoptotic body,nucleus,Apoptotic cell,True,manual map
+breast_nucls,neutrophil,nucleus,Neutrophil,True,
 breast_nucls,ductal epithelium,nucleus,Epithelial cell,True,manual map
-breast_nucls,eosinophil,nucleus,Eosinophil,True,manual map
+breast_nucls,eosinophil,nucleus,Eosinophil,True,
 breast_midog21,mitoses,cell,Mitosis (mitotic cell),True,map mitoses to Mitosis (mitotic cell)
+breast_midog21,not mitoses,cell,Non_mitosis (resting cells),True,hard negatives
 ihc_tlymphoctype,CD3+ immune cell,cell,Lymphocyte,True,heuristic map
-ihc_tlymphoctype,Tumor cell,cell,Invasive cancer cells,True,heuristic map (neoplastic)
+ihc_tlymphoctype,Tumor cell,cell,Epithelial cell,True,heuristic map (neoplastic)
 ihc_tlymphoctype,Diverse,cell,,False,drop ambiguous
 ihc_tlymphoctype,Other cell,cell,,False,drop ambiguous
 mix_midog22_b,mitoses,cell,Mitosis (mitotic cell),True,map mitoses to Mitosis (mitotic cell)
-mix_panuke,Neoplastic cells,nucleus,Invasive cancer cells,True,panuke channel map
-mix_panuke,Inflammatory,nucleus,Leukocyte (general),True,panuke channel map
-mix_panuke,Connective/Soft tissue cells,nucleus,Cancer-Associated Fibroblasts,True,panuke channel map
-mix_panuke,Dead Cells,nucleus,Dead cells,True,panuke channel map
-mix_panuke,Epithelial,nucleus,Epithelial cell,True,panuke channel map
-mix_panuke,Background,nucleus,,False,background channel
-colon_lizard,Neutrophil,nucleus,Neutrophil,True,lizard map
-colon_lizard,Epithelial,nucleus,Epithelial cell,True,lizard map
-colon_lizard,Lymphocyte,nucleus,Lymphocyte,True,lizard map
-colon_lizard,Plasma,nucleus,Plasma cell,True,lizard map
-colon_lizard,Eosinophil,nucleus,Eosinophil,True,lizard map
-colon_lizard,Connective tissue,nucleus,Cancer-Associated Fibroblasts,True,lizard map
-colon_conic,Neutrophil,nucleus,Neutrophil,True,conic map
-colon_conic,Epithelial,nucleus,Epithelial cell,True,conic map
-colon_conic,Lymphocyte,nucleus,Lymphocyte,True,conic map
-colon_conic,Plasma,nucleus,Plasma cell,True,conic map
-colon_conic,Eosinophil,nucleus,Eosinophil,True,conic map
-colon_conic,Connective,nucleus,Cancer-Associated Fibroblasts,True,conic map
-mix_monusac20,Lymphocyte,nucleus,Lymphocyte,True,monusac map
-mix_monusac20,Neutrophil,nucleus,Neutrophil,True,monusac map
-mix_monusac20,Macrophage,nucleus,Macrophage,True,monusac map
-mix_monusac20,Epithelial,nucleus,Epithelial cell,True,monusac map
-mix_monusac20,Ambiguous,nucleus,,False,drop ambiguous
-skin_puma,nuclei_tumor,nucleus,Invasive cancer cells,True,puma map
-skin_puma,nuclei_lymphocyte,nucleus,Lymphocyte,True,puma map
-skin_puma,nuclei_plasma_cell,nucleus,Plasma cell,True,puma map
-skin_puma,nuclei_endothelium,nucleus,Endothelial cell,True,puma map
-skin_puma,nuclei_epithelium,nucleus,Epithelial cell,True,puma map
-skin_puma,nuclei_apoptosis,nucleus,Apoptosis (apoptotic cell),True,puma map
-skin_puma,nuclei_histiocyte,nucleus,Macrophage,True,puma map
-skin_puma,nuclei_melanophage,nucleus,Macrophage,True,puma map
-skin_puma,nuclei_neutrophil,nucleus,Neutrophil,True,puma map
-skin_puma,nuclei_stroma,nucleus,Cancer-Associated Fibroblasts,True,puma map
-bone_segpc,Plasma cell,cell,Plasma cell,True,segpc map
-blood_nuclick,Leukocyte,cell,Leukocyte (general),True,nuclick map
+mix_midog22_b,not mitoses,cell,Non_mitosis (resting cells),True,hard negatives
+mix_monusac20,Epithelial,nucleus,Epithelial cell,True,
+mix_monusac20,Macrophage,nucleus,Macrophage,True,
+mix_monusac20,Lymphocyte,nucleus,Lymphocyte,True,
+mix_monusac20,Neutrophil,nucleus,Neutrophil,True,
+mix_monusac20,Ambiguous,nucleus,,False,drop ambiguous class
+mix_panuke,Neoplastic cells,cell,Invasive cancer cells,True,
+mix_panuke,Inflammatory,cell,Leukocyte (general),True,
+mix_panuke,Connective/Soft tissue cells,cell,Cancer-Associated Fibroblasts,True,
+mix_panuke,Dead Cells,cell,Dead cells,True,
+mix_panuke,Epithelial,cell,Epithelial cell,True,
+mix_panuke,Background,cell,,False,drop background
+skin_puma,nuclei_tumor,nucleus,Invasive cancer cells,True,
+skin_puma,nuclei_lymphocyte,nucleus,Lymphocyte,True,
+skin_puma,nuclei_plasma_cell,nucleus,Plasma cell,True,
+skin_puma,nuclei_stroma,nucleus,Macrophage,True,map stromal nuclei to macrophage-surrogate
+skin_puma,nuclei_histiocyte,nucleus,Macrophage,True,map histiocyte to macrophage
+skin_puma,nuclei_melanophage,nucleus,Macrophage,True,map melanophage to macrophage
+skin_puma,nuclei_endothelium,nucleus,Endothelial cell,True,
+skin_puma,nuclei_neutrophil,nucleus,Neutrophil,True,
+skin_puma,nuclei_epithelium,nucleus,Epithelial cell,True,
+skin_puma,nuclei_apoptosis,nucleus,Apoptosis (apoptotic cell),True,
+colon_lizard,Neutrophil,nucleus,Neutrophil,True,
+colon_lizard,Epithelial,nucleus,Epithelial cell,True,
+colon_lizard,Lymphocyte,nucleus,Lymphocyte,True,
+colon_lizard,Plasma,nucleus,Plasma cell,True,
+colon_lizard,Eosinophil,nucleus,Eosinophil,True,
+colon_lizard,Connective tissue,nucleus,Cancer-Associated Fibroblasts,True,
+colon_conic,Neutrophil,nucleus,Neutrophil,True,
+colon_conic,Epithelial,nucleus,Epithelial cell,True,
+colon_conic,Lymphocyte,nucleus,Lymphocyte,True,
+colon_conic,Plasma,nucleus,Plasma cell,True,
+colon_conic,Eosinophil,nucleus,Eosinophil,True,
+colon_conic,Connective tissue,nucleus,Cancer-Associated Fibroblasts,True,
+bone_segpc,plasma cell,cell,Plasma cell,True,
+blood_nuclick,leukocyte,nucleus,Leukocyte (general),True,

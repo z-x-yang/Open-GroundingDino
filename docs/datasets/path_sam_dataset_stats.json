@@ -20,20 +20,6 @@
     "val_images": 353,
     "val_boxes": 42416
   },
-  "midog21": {
-    "type": "bbox",
-    "train_images": 1767,
-    "train_boxes": 2505,
-    "val_images": 30,
-    "val_boxes": 1065
-  },
-  "midog22": {
-    "type": "bbox",
-    "train_images": 317,
-    "train_boxes": 575,
-    "val_images": 66,
-    "val_boxes": 95
-  },
   "monusac": {
     "type": "instance->bbox",
     "train_images": 587,

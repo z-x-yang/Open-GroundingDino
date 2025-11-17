@@ -26,11 +26,13 @@ from torch.autograd.function import once_differentiable
 from torch.nn.init import constant_, xavier_uniform_
 
 try:
-    # from groundingdino import _C
     import MultiScaleDeformableAttention as _C
 except Exception:
-    warnings.warn("Failed to load custom C++ ops. Running on CPU mode Only!")
-    raise Exception('Wont work without MultiScaleDeformableAttention')
+    _C = None
+    warnings.warn(
+        "Failed to load custom C++ ops. Falling back to PyTorch multi-scale deformable attention. "
+        "This will be significantly slower but keeps training functional on CPU."
+    )
 
 
 # helpers
@@ -51,6 +53,8 @@ class MultiScaleDeformableAttnFunction(Function):
         attention_weights,
         im2col_step,
     ):
+        if _C is None:
+            raise RuntimeError("MultiScaleDeformableAttnFunction requires compiled C++ ops.")
         ctx.im2col_step = im2col_step
         output = _C.ms_deform_attn_forward(
             value,
